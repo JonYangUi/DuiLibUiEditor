@@ -46,7 +46,6 @@ include/res/*.bat
 *.tmp
 *.user
 *.xdc
-*[^B][^a][^k].xml
 *_Debug
 *_gui.h
 *_manifest.rc
