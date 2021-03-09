@@ -1,0 +1,6 @@
+LIBRARY
+EXPORTS
+CreateScriptEngine
+DeleteScriptEngine
+CreateScriptHelper
+DeleteScriptHelper
