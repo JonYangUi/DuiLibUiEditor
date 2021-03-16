@@ -48,4 +48,4 @@ https://blog.csdn.net/mmcanyu/article/details/112685524
    
    ### 4. 重要说明
 
-本项目创建窗口依据的`bin\DuiLib.xml` 创建
+设计器创建控件和修改属性依据`bin\DuiLib.xml`，理论上只要遵循这个约定的duilib版本都可以使用这款设计器。
