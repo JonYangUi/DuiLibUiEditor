@@ -83,7 +83,7 @@ void CGridListUI::DoInit()
 
 	if(GetFixedColumnCount() > 0 && GetLeftFixedColWidth() > 0)
 	{
-		SetColumnWidth(0, GetLeftFixedColWidth());
+		m_mapColumnWidthFixed[0] = GetLeftFixedColWidth();
 	}
 
 	m_nRowCount = m_pHeader->GetCount() + m_pBody->GetCount();
@@ -104,6 +104,7 @@ void CGridListUI::DoEvent(TEventUI& event)
 
 	if( event.Type == UIEVENT_BUTTONDOWN )
 	{
+		//InsertMsgUI(_T("grid clickdown"));
 		if(!GetCellFromPt(event.ptMouse))
 		{
 			ClearSelectedCells();
@@ -123,6 +124,7 @@ void CGridListUI::DoEvent(TEventUI& event)
 
 	if( event.Type == UIEVENT_BUTTONUP )
 	{
+		//InsertMsgUI(_T("grid buttonup"));
 		if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) 
 			m_uButtonState &= ~UISTATE_CAPTURED;
 		if(!m_rcTracker.IsNull())
@@ -180,7 +182,8 @@ void CGridListUI::DoEvent(TEventUI& event)
 	{
 		if( ::PtInRect(&m_rcItem, event.ptMouse) ) 
 		{
-			if(GetManager()) GetManager()->SendNotify(this, DUI_MSGTYPE_DBCLICK);
+			//InsertMsgUI(_T("grid dbclick"));
+			if(GetManager()) GetManager()->SendNotify(this, DUI_MSGTYPE_DBCLICK, 0, 0, true);
 		}
 		return;
 	}
@@ -216,42 +219,74 @@ void CGridListUI::SetPos(RECT rc, bool bNeedInvalidate)
 
 	SIZE szAvailable = { rc.right - rc.left, rc.bottom - rc.top };
 	int iPosX = rc.left;
-	if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible()) 
+	if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible() && !IsFitColumns()) 
 	{
 		szAvailable.cx += m_pHorizontalScrollBar->GetScrollRange();
 		iPosX -= m_pHorizontalScrollBar->GetScrollPos();
 	}
+
+	if(IsFitRows() && GetRowCount() > 0)
+	{
+		int rowCount = GetRowCount();
+		int nAverage = (rc.bottom - rc.top -1) / rowCount;
+		for (int i=0; i<rowCount; i++)
+		{
+			SetRowHeight(i, nAverage);
+		}
+	}
 	
-	if(IsExpandColumnToFit() && GetColumnCount() > 0)
+	//自动调整表格最后一列，使铺满表格
+	if(IsExpandLastColumn() && GetColumnCount() > 0 && GetColumnCount() < MAX_GRID_COLUMN_COUNT)
 	{
 		int cxFixed = 0;
+		int colCount = GetColumnCount();
+		for (int i=0; i<colCount-1; i++)
+		{
+			cxFixed += GetColumnWidth(i);
+		}
+
+		//最后一列大于默认列宽才能扩展
+		if(rc.right - rc.left - cxFixed > GetDefColWidth())
+		{
+			m_mapColumnWidthFixed[colCount-1] = rc.right - rc.left - cxFixed - 1;
+
+		}
+		else
+			m_mapColumnWidthFixed[colCount-1] = GetDefColWidth();
+	}
+	//自动调整表格所有列，使铺满表格
+	else if(IsFitColumns() && GetColumnCount() > 0 && GetColumnCount() < MAX_GRID_COLUMN_COUNT)
+	{
+		int cxFixed = 0;
+		int nFixedCount = 0;
 		for (int i=0; i<GetColumnCount(); i++)
 		{
 			if(GetFixedColumnCount() > 0 && GetLeftFixedColWidth() > 0 && i == 0)
 			{
 				cxFixed += GetLeftFixedColWidth();
+				nFixedCount++;
 				continue;
 			}
-			if(i < MAX_GRID_COLUMN_COUNT)
+			else if(m_mapColumnWidthFixed[i] > 0)
 			{
 				cxFixed += m_mapColumnWidthFixed[i];
+				nFixedCount++;
 			}
 		}
-		int nAverage = ( szAvailable.cx - cxFixed ) / GetColumnCount();
-		if(GetFixedColumnCount() > 0 && GetLeftFixedColWidth() > 0)
+		int nNoFixedCols = GetColumnCount() - nFixedCount;
+		if(nNoFixedCols > 0)
 		{
-			nAverage = ( szAvailable.cx - cxFixed ) / (GetColumnCount() - 1);
-		}
-		for (int i=0; i<GetColumnCount(); i++)
-		{
-			if(GetFixedColumnCount() > 0 && GetLeftFixedColWidth() > 0 && i == 0)
+			int nAverage = ( szAvailable.cx - cxFixed ) / nNoFixedCols;
+			for (int i=0; i<GetColumnCount(); i++)
 			{
-				SetColumnWidth(i, GetLeftFixedColWidth());
-				continue;
-			}
-			if(i < MAX_GRID_COLUMN_COUNT)
-			{
-				SetColumnWidth(i, nAverage + m_mapColumnWidthFixed[i]);
+				if(GetFixedColumnCount() > 0 && GetLeftFixedColWidth() > 0 && i == 0)
+				{
+					m_mapColumnWidth[i] = (i, GetLeftFixedColWidth());
+				}
+				else if(m_mapColumnWidthFixed[i] == 0)
+				{
+					m_mapColumnWidth[i] = (i, nAverage);
+				}
 			}
 		}
 	}
@@ -287,6 +322,12 @@ void CGridListUI::SetScrollPos(SIZE szPos, bool bMsg)
 {
 	int cx = 0;
 	int cy = 0;
+
+	if(IsVirtualGrid())
+	{
+		ClearSelectedRows();
+		ClearSelectedCells();
+	}
 
 	//just scroll body's VerticalScrollBar
 	if( m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible() ) 
@@ -429,8 +470,16 @@ void CGridListUI::ProcessScrollBar(RECT rc, int cxRequired, int cyRequired)
 void CGridListUI::BuildVirtualRow()
 {
 	RECT rcBody = m_pBody->GetPos();
-	int nNeedRows = (rcBody.bottom - rcBody.top) / GetDefRowHeight();
-	if((rcBody.bottom - rcBody.top) % GetDefRowHeight() > 0)
+
+	int BodyHeight = rcBody.bottom - rcBody.top;
+	//如果有滚动条，要减去这个高度
+	if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible() ) {
+		BodyHeight -= m_pHorizontalScrollBar->GetFixedHeight();
+		if(BodyHeight < 0) BodyHeight = 0;
+	}
+
+	int nNeedRows = BodyHeight / GetDefRowHeight();
+	if( BodyHeight % GetDefRowHeight() > 0)
 		nNeedRows++;
 	
 	nNeedRows = min(m_nRowCount - GetFixedRowCount(), nNeedRows);
@@ -468,6 +517,7 @@ void CGridListUI::ResetVirtualOrder(bool bForceReset)
 
 	//InsertMsgUiV(_T("szPos.cy=%d, maxPosY=%d"), szPos.cy, maxPosY);
 
+
 	if(szPos.cy >= 0 && szPos.cy <= maxPosY)
 	{
 		BOOL bNofity = FALSE;
@@ -486,7 +536,7 @@ void CGridListUI::ResetVirtualOrder(bool bForceReset)
 		//Notification window for grid filling  通知窗口进行表格填充
 		if(bNofity || bForceReset)
 		{
-			GetManager()->SendNotify(this, DUI_MSGTYPE_DRAWITEM, startrow, startrow+m_pBody->GetCount()-1);
+			GetManager()->SendNotify(this, DUI_MSGTYPE_DRAWITEM, startrow, startrow+m_pBody->GetCount()-GetFixedRowCount());
 			Refresh();
 		}
 	}
@@ -1005,16 +1055,16 @@ int CGridListUI::GetRowHeight(int nRow)
 BOOL CGridListUI::SetColumnWidth(int nCol, int width)
 {
 	if(nCol<0 || nCol >= MAX_GRID_COLUMN_COUNT) return FALSE;
-	m_mapColumnWidth[nCol] = width;
-	m_mapColumnWidthFixed[nCol] = width - GetDefColWidth();
+	m_mapColumnWidthFixed[nCol] = width;
 	return TRUE;
 }
 
 int CGridListUI::GetColumnWidth(int nCol)
 {
 	if(nCol<0 || nCol >= MAX_GRID_COLUMN_COUNT) return 0;
-
-	return m_mapColumnWidth[nCol] > 0 ? m_mapColumnWidth[nCol] : GetDefColWidth();
+	if(m_mapColumnWidthFixed[nCol] > 0) return m_mapColumnWidthFixed[nCol];
+	if(m_mapColumnWidth[nCol] > 0) return m_mapColumnWidth[nCol];
+	return GetDefColWidth();
 }
 
 void CGridListUI::ClearSelectedRows()
@@ -1297,6 +1347,39 @@ CGridListCellUI *CGridListUI::GetNextSelectCell()
 	return pCell;
 }
 
+void CGridListUI::SetRowTag(int row, UINT_PTR tag)
+{
+	CGridListRowUI *pRow = GetRow(row);
+	if(pRow)
+	{
+		pRow->SetTag(tag);
+	}
+}
+
+UINT_PTR CGridListUI::GetRowTag(int row)
+{
+	CGridListRowUI *pRow = GetRow(row);
+	if(pRow)
+	{
+		return pRow->GetTag();
+	}
+	return NULL;
+}
+
+CGridListRowUI *CGridListUI::FindRowFromRowTag(UINT_PTR tag)
+{
+	int count = GetRowCount();
+	for (int i=0; i<count; i++)
+	{
+		CGridListRowUI *pRow = GetRow(i);
+		if(pRow && pRow->GetTag() == tag)
+		{
+			return pRow;
+		}
+	}
+	return NULL;
+}
+
 void CGridListUI::MergeCells(int nStartRow, int nStartCol, int nEndRow, int nEndCol)
 {
 	BOOL bFirst = TRUE;
@@ -1320,6 +1403,9 @@ void CGridListUI::MergeCells(int nStartRow, int nStartCol, int nEndRow, int nEnd
 		}
 	}
 }
+
+void CGridListUI::SetSortCallbackFun(PFNLVCOMPARE pfnCompare) { m_pfnCompare = pfnCompare; }
+PFNLVCOMPARE CGridListUI::GetSortCallbackFun() const { return m_pfnCompare; }
 
 void CGridListUI::SortItems(int col)
 {
@@ -1760,6 +1846,8 @@ bool  CGridListUI::SaveExcelFile(LPCTSTR filename, bool bOpenFileDialog)
 	f.SaveAs(strFileName);
 	return true;
 }
+
+
 //////////////////////////////////////////////////////////////////////////
 void CGridListUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
 {
@@ -1829,13 +1917,21 @@ void CGridListUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
 	{
 		EnableSizeRowInBody(_tcsicmp(pstrValue, _T("true")) == 0);
 	}
-	else if( _tcsicmp(pstrName, _T("expandcolumntofit")) == 0 )	
+	else if( _tcsicmp(pstrName, _T("fitcolumnbytext")) == 0 )	
 	{
-		ExpandColumnToFit(_tcsicmp(pstrValue, _T("true")) == 0);
+		SetExpandColumnByText(_tcsicmp(pstrValue, _T("true")) == 0);
 	}	
-	else if( _tcsicmp(pstrName, _T("expandrowtofit")) == 0 )
+	else if( _tcsicmp(pstrName, _T("fitlastcolumn")) == 0 )	
 	{
-		ExpandRowToFit(_tcsicmp(pstrValue, _T("true")) == 0);
+		SetExpandLastColumn(_tcsicmp(pstrValue, _T("true")) == 0);
+	}	
+	else if( _tcsicmp(pstrName, _T("fitcolumns")) == 0 )	
+	{
+		SetFitColumns(_tcsicmp(pstrValue, _T("true")) == 0);
+	}	
+	else if( _tcsicmp(pstrName, _T("fitrows")) == 0 )
+	{
+		SetFitRows(_tcsicmp(pstrValue, _T("true")) == 0);
 	}
 	else if( _tcsicmp(pstrName, _T("listmode")) == 0 )
 	{
@@ -1905,12 +2001,12 @@ void CGridListUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
 	{
 		SetCellFont(_ttoi(pstrValue));
 	}
-	else if( _tcsicmp(pstrName, _T("cellbordercolor")) == 0 )
+	else if( _tcsicmp(pstrName, _T("cellselectedbordercolor")) == 0 )
 	{
 		if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
 		LPTSTR pstr = NULL;
 		DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
-		SetCellBorderColor(clrColor);
+		SetCellSelectedBorderColor(clrColor);
 	}
 	//////////////////////////////////////////////////////////////////////////
 	else if( _tcsicmp(pstrName, _T("cellselectedbkcolor")) == 0 )

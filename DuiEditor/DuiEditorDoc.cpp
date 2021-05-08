@@ -235,6 +235,7 @@ BOOL CDuiEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	{
 		SetModifiedFlag(TRUE);
 	}
+	g_session.OpenSession(lpszPathName);
 	return TRUE;
 }
 
@@ -365,6 +366,9 @@ void CDuiEditorDoc::OnCloseDocument()
 	}
 	//如果没有打开任何文档，左侧切换到文件列表
 	pMain->m_wndFileView.ShowPane(TRUE, FALSE,TRUE);
+
+	//趁这个机会，清理UIManager的静态成员的资源
+	//CPaintManagerUI::Term();
 }
 
 void CDuiEditorDoc::SetModifiedFlag(BOOL bModified)
@@ -397,7 +401,7 @@ void CDuiEditorDoc::SetModifiedFlag(BOOL bModified)
 			SetTitle(m_strMyTitle);
 	}
 
-	if(IsModified())
+	if(bModified)
 	{
 		SaveBackupFile();
 	}
@@ -417,6 +421,15 @@ void CDuiEditorDoc::SaveBackupFile()
 BOOL CDuiEditorDoc::IsModified()
 {
 	return GetUIManager()->GetCodeView()->GetSciWnd()->sci_GetModify() || m_bModified;
+}
+
+BOOL CDuiEditorDoc::SaveModified()
+{
+	BOOL bRet = CDocument::SaveModified();
+
+	g_session.CloseSession(GetPathName());
+
+	return bRet;
 }
 
 CString CDuiEditorDoc::GetSkinPath()

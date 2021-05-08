@@ -68,9 +68,10 @@ void CImageEditorView::OnDraw(CDC* pDC)
 
 	CImageEditor *pDlgMain = (CImageEditor *)GetParent()->GetParent();
 	
-	if(pDlgMain->m_imgControlX.IsEnabled() && pDlgMain->m_imgControlX.IsValid())
+	if(pDlgMain->m_imgControlX != NULL )
 	{
-		pDlgMain->m_imgControlX.Draw(memDC->m_hDC, m_rcControl);
+		CRect bmpPart(0,0,m_rcControl.Width(), m_rcControl.Height());
+		CRenderEngine::DrawImage(memDC->m_hDC, pDlgMain->m_imgControlX, m_rcControl, m_rcControl, bmpPart, CRect(0,0,0,0), false);
 	}
 	else
 	{
@@ -78,11 +79,8 @@ void CImageEditorView::OnDraw(CDC* pDC)
 		memDC->Rectangle(m_rcControl);
 	}
 
-#ifndef DUILIB_VERSION_ORIGINAL
 	CRenderEngine::DrawImageInfo(memDC->m_hDC, m_pManager, m_rcControl, m_rcControl, &m_drawInfo, AfxGetResourceHandle());
-#else
-	CRenderEngine::DrawImage(memDC->m_hDC, m_pManager, m_rcControl, m_rcControl, m_drawInfo);
-#endif
+
 
 	if(g_pEditorImage->m_pFrame->m_bTrackerDest)
 		m_tracker.Draw(&memDC);
@@ -107,18 +105,22 @@ void CImageEditorView::InitData()
 	}
 
 	CString file = XML2T(node.attribute("file").as_string());
-	if(!file.IsEmpty())
+	int width = node.attribute("width").as_int(0);
+	int height = node.attribute("height").as_int(0);
+	DWORD fillcolor = node.attribute("fillcolor").as_uint(0);
+	CDuiString sImageName = file;
+	if(width !=0 || height != 0 || fillcolor != 0)
 	{
-		m_pManager->RemoveImage(file);
+		sImageName.Format(_T("%s-%d-%d-%08X"), file, width, height, fillcolor);
+	}
+	if(!sImageName.IsEmpty())
+	{
+		m_pManager->RemoveImage(sImageName);
 	}
 
 	m_drawInfo.Clear();
-#ifdef DUILIB_VERSION_ORIGINAL
-	m_drawInfo.sDrawString = strImageInfo;
-	m_drawInfo.bLoaded = false;
-#else
 	m_drawInfo.Parse(strImageInfo, NULL, m_pManager);
-#endif
+
 
 	if(!g_pEditorImage->m_rcControl.IsRectEmpty())
 	{

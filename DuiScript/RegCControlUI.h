@@ -123,6 +123,13 @@ public:
 		//REG_CONTROL_FUN(void,			  SetFloatPercent,	(TPercentInfo piFloatPercent));
 		REG_CONTROL_FUNPR(void,			  SetFloatAlign,	(UINT uAlign)			);
 		REG_CONTROL_FUNPR(UINT,			  GetFloatAlign,	() const				);
+
+
+		REG_CONTROL_FUNPR(bool,	 IsAutoCalcWidth,		() const				);
+		REG_CONTROL_FUNPR(void,	 SetAutoCalcWidth,		(bool bAutoCalcWidth)	);
+		REG_CONTROL_FUNPR(bool,	 IsAutoCalcHeight,		() const				);
+		REG_CONTROL_FUNPR(void,	 SetAutoCalcHeight,		(bool bAutoCalcHeight)	);
+
 		//  Û±ÍÃ· æ
 		REG_CONTROL_FUNPR(CDuiString,	  GetToolTip,		() const				);
 		REG_CONTROL_FUNPR(void,			  SetToolTip,		(LPCTSTR pstrText)		);
@@ -310,8 +317,8 @@ public:
 		REG_CONTROL_FUNPR(int,			GetCount,		() const							);
 		REG_CONTROL_FUNPR(bool,			Add,			(CControlUI* pControl)				);
 		REG_CONTROL_FUNPR(bool,			AddAt,			(CControlUI* pControl, int iIndex)	);
-		REG_CONTROL_FUNPR(bool,			Remove,			(CControlUI* pControl)				);
-		REG_CONTROL_FUNPR(bool,			RemoveAt,		(int iIndex)						);
+		REG_CONTROL_FUNPR(bool,			Remove,			(CControlUI* pControl, bool bDoNotDestroy));
+		REG_CONTROL_FUNPR(bool,			RemoveAt,		(int iIndex, bool bDoNotDestroy		));
 		REG_CONTROL_FUNPR(void,			RemoveAll,		()									);
 
 		REG_CONTROL_FUNPR(RECT,	 GetInset,				() const				);
@@ -410,11 +417,6 @@ public:
 		REG_CONTROL_FUNPR(void,	 SetTextPadding,		(RECT rc)			);
 		REG_CONTROL_FUNPR(bool,	 IsShowHtml,			()					);
 		REG_CONTROL_FUNPR(void,	 SetShowHtml,			(bool bShowHtml)	);
-
-		REG_CONTROL_FUNPR(bool,	 GetAutoCalcWidth,		() const				);
-		REG_CONTROL_FUNPR(void,	 SetAutoCalcWidth,		(bool bAutoCalcWidth)	);
-		REG_CONTROL_FUNPR(bool,	 GetAutoCalcHeight,		() const				);
-		REG_CONTROL_FUNPR(void,	 SetAutoCalcHeight,		(bool bAutoCalcHeight)	);
 	}
 };
 
@@ -445,9 +447,6 @@ public:
 		REG_CONTROL_FUNPR(bool,	 Expand,			(bool bExpand)			);
 
 		//REG_CONTROL_FUN(void,	 DrawItemBk,		(HDC hDC, const RECT& rcItem)	);
-
-		REG_CONTROL_FUNPR(bool,	 GetAutoCalcWidth,	() const				);
-		REG_CONTROL_FUNPR(void,	 SetAutoCalcWidth,	(bool bAutoCalcWidth)	);
 	}
 };
 
@@ -733,10 +732,6 @@ public:
 		REG_CONTROL_FUNPR(bool,	SelectMulti,	(bool bSelect)	);
 		REG_CONTROL_FUNPR(bool,	IsExpanded,		() const		);
 		REG_CONTROL_FUNPR(bool,	Expand,			(bool bExpand)	);
-
-
-		REG_CONTROL_FUNPR(bool,	GetAutoCalcWidth,	() const				);
-		REG_CONTROL_FUNPR(void,	SetAutoCalcWidth,	(bool bAutoCalcWidth)	);
 	}
 };
 
@@ -875,32 +870,6 @@ public:
 		REG_CONTROL_FUNPR(void, SetItemHotTextColor, (DWORD _dwItemHotTextColor));
 		REG_CONTROL_FUNPR(void, SetSelItemTextColor, (DWORD _dwSelItemTextColor));
 		REG_CONTROL_FUNPR(void, SetSelItemHotTextColor, (DWORD _dwSelHotItemTextColor));
-	}
-};
-
-//////////////////////////////////////////////////////////////////////////
-//CAnimationPaneUI
-template <typename T>
-class regCAnimationPaneUI : public regCContainerUI<T>
-{
-	DECL_CONTROL_FACTORY(CAnimationPaneUI);
-	DECL_CONTROL_REGFACT(CAnimationPaneUI);
-public:
-	virtual void reg(asIScriptEngine *engine)
-	{
-		__super::reg(engine);
-		int r = 0;
-
-		REG_CONTROL_FUNPR(void,		SetPaneVisible,			(bool bVisible, bool bAnimation)	);
-		REG_CONTROL_FUNPR(bool,		IsPaneVisible,			() const			);
-
-		REG_CONTROL_FUNPR(void,		SetFrameCount,			(int framecount)	);
-		REG_CONTROL_FUNPR(int,		GetFrameCount,			() const			);
-		REG_CONTROL_FUNPR(void,		SetFrameDelay,			(int nDelay)		);
-		REG_CONTROL_FUNPR(int,		GetFrameDelay,			() const			);
-
-		REG_CONTROL_FUNPR(void,		SetAnimationDirection,	(int nAnim)			);
-		REG_CONTROL_FUNPR(int,		GetAnimationDirection,	()					);
 	}
 };
 

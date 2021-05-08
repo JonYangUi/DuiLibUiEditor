@@ -2,7 +2,6 @@
 #define __UIMANAGER_H__
 
 #pragma once
-#define WM_USER_SET_DPI WM_USER + 200
 namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -58,6 +57,11 @@ namespace DuiLib {
 	{
 		// 内部保留消息
 		UIMSG_TRAYICON = WM_USER + 1,
+		UIMSG_INSERT_MSG,					//CMsgWnd插入文本
+		UIMSG_SET_DPI,
+		UIMSG_MENUCLICK,					//用来接收按钮单击的消息
+		UIMSG_MENU_UPDATE_COMMAND_UI,		//更新菜单消息
+
 		// 程序自定义消息
 		UIMSG_USER = WM_USER + 100,
 	};
@@ -94,12 +98,14 @@ namespace DuiLib {
 
 	typedef struct UILIB_API tagTFontInfo
 	{
+		int id;
 		HFONT hFont;
 		CDuiString sFontName;
 		int iSize;
 		bool bBold;
 		bool bUnderline;
 		bool bItalic;
+		bool bDefault;
 		TEXTMETRIC tm;
 	} TFontInfo;
 
@@ -114,6 +120,7 @@ namespace DuiLib {
 		bool bUseHSL;
 		CDuiString sResType;
 		DWORD dwMask;
+		int delay;
 	} TImageInfo;
 
 	typedef struct UILIB_API tagTDrawInfo
@@ -135,8 +142,11 @@ namespace DuiLib {
 		bool bTiledX;
 		bool bTiledY;
 		bool bHSL;
-		int width;
-		int height;
+		RECT rcPadding;		//外边距
+		UINT uAlign;		//对齐方式
+		int width;			//SVG的宽度
+		int height;			//SVG的高度
+		DWORD fillcolor;	//SVG的填充颜色
 	} TDrawInfo;
 
 	typedef struct UILIB_API tagTPercentInfo
@@ -233,6 +243,8 @@ namespace DuiLib {
 		void Init(HWND hWnd, LPCTSTR pstrName = NULL);
 		bool IsUpdateNeeded() const;
 		void NeedUpdate();
+		void LockUpdate(bool bLock);
+		bool IsLockUpdate();
 		void Invalidate();
 		void Invalidate(RECT& rcItem);
 
@@ -335,10 +347,11 @@ namespace DuiLib {
 		void RemoveAllFonts(bool bShared = false);
 		TFontInfo* GetFontInfo(int id);
 		TFontInfo* GetFontInfo(HFONT hFont);
+		TFontInfo* GetFontInfo(int nIndex, bool bShared);
 
 		const TImageInfo* GetImage(LPCTSTR bitmap);
-		const TImageInfo* GetImageEx(LPCTSTR bitmap, LPCTSTR type = NULL, DWORD mask = 0, int width=0, int height=0, bool bUseHSL = false, HINSTANCE instance = NULL);
-		const TImageInfo* AddImage(LPCTSTR bitmap, LPCTSTR type = NULL, DWORD mask = 0, int width=0, int height=0, bool bUseHSL = false, bool bShared = false, HINSTANCE instance = NULL);
+		const TImageInfo* GetImageEx(LPCTSTR bitmap, LPCTSTR type = NULL, DWORD mask = 0, int width=0, int height=0, DWORD fillcolor=0, bool bUseHSL = false, HINSTANCE instance = NULL);
+		const TImageInfo* AddImage(LPCTSTR bitmap, LPCTSTR type = NULL, DWORD mask = 0, int width=0, int height=0, DWORD fillcolor=0, bool bUseHSL = false, bool bShared = false, HINSTANCE instance = NULL);
 		const TImageInfo* AddImage(LPCTSTR bitmap, HBITMAP hBitmap, int iWidth, int iHeight, bool bAlpha, bool bShared = false);
 		void RemoveImage(LPCTSTR bitmap, bool bShared = false);
 		void RemoveAllImages(bool bShared = false);
@@ -447,8 +460,6 @@ namespace DuiLib {
 		void RebuildFont(TFontInfo* pFontInfo);
 		void SetDPI(int iDPI);
 		static void SetAllDPI(int iDPI);
-		static void SetAdjustDPIRecource(bool bAdjust); //是否动态调整DPI资源, add by liqs99
-		static bool IsAdjustDPIRecource(); //是否动态调整DPI资源, add by liqs99
 
 		bool MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lRes);
 		bool PreMessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lRes);
@@ -507,6 +518,7 @@ namespace DuiLib {
 		UINT m_uTimerID;
 		bool m_bFirstLayout;
 		bool m_bUpdateNeeded;
+		bool m_bLockUpdate;
 		bool m_bFocusNeeded;
 		bool m_bOffscreenPaint;
 		
@@ -593,7 +605,7 @@ namespace DuiLib {
 		//static bool LoadScriptPlugin(LPCTSTR pstrModuleName);
 		static bool LoadScriptPlugin(CREATE_SCRIPT_ENGINE_INSTANCE pFunCreate, DELETE_SCRIPT_ENGINE_INSTANCE pFunDelete);
 
-		IScriptManager *GetScriptEngine();
+		IScriptManager *GetScriptEngine(bool bCreateScriptEngine=false);
 		void AddScriptFile(LPCTSTR pstrFileName, LPCTSTR pLanguageType=NULL);
 		bool CompileScript();
 		void *GetScriptFunAddress(LPCTSTR lpszFunName);

@@ -55,8 +55,6 @@ enum MenuItemDefaultInfo
 
 };
 
-#define WM_MENUCLICK WM_USER + 121					//用来接收按钮单击的消息
-#define WM_MENU_UPDATE_COMMAND_UI WM_USER + 122		//更新菜单消息
 
 
 ///////////////////////////////////////////////
@@ -262,7 +260,7 @@ public:
 
     virtual int GetItemIndex(CControlUI* pControl) const;
     virtual bool SetItemIndex(CControlUI* pControl, int iIndex);
-    virtual bool Remove(CControlUI* pControl);
+    virtual bool Remove(CControlUI* pControl, bool bDoNotDestroy=false);
 
 	//modify by liqs99, 下面函数改为虚函数
 	virtual SIZE EstimateSize(SIZE szAvailable);
@@ -405,7 +403,7 @@ public:
 protected:
 	bool _DrawImageMenuDisableIcon(HDC hDC, CPaintManagerUI* pManager, const RECT& rc, const RECT& rcPaint, const CDuiString& sImageName, \
 		const CDuiString& sImageResType, RECT rcItem, RECT rcBmpPart, RECT rcCorner, DWORD dwMask, BYTE bFade, \
-		bool bHole, bool bTiledX, bool bTiledY, int width, int height, HINSTANCE instance = NULL);
+		bool bHole, bool bTiledX, bool bTiledY, int width, int height, DWORD fillcolor, HINSTANCE instance = NULL);
 protected:
 	CMenuWnd*	m_pWindow;
 

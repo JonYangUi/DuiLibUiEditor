@@ -92,8 +92,10 @@ namespace DuiLib {
 		virtual bool IsExpanded() const = 0;
 		virtual bool Expand(bool bExpand = true) = 0;
 		virtual void DrawItemText(HDC hDC, const RECT& rcItem) = 0;
-		virtual bool GetAutoCalcWidth() const = 0;
+		virtual bool IsAutoCalcWidth() const = 0;
 		virtual void SetAutoCalcWidth(bool bAutoCalcWidth) = 0;
+		virtual bool IsAutoCalcHeight() const = 0;
+		virtual void SetAutoCalcHeight(bool bAutoCalcWidth) = 0;
 	};
 
 
@@ -103,7 +105,7 @@ namespace DuiLib {
 	class CListBodyUI;
 	class CListHeaderUI;
 	class CEditUI;
-	class CComboBoxUI;
+	class CComboUI;
 	class UILIB_API CListUI : public CVerticalLayoutUI, public IListUI
 	{
 		DECLARE_DUICONTROL(CListUI)
@@ -145,8 +147,8 @@ namespace DuiLib {
 		int GetCount() const;
 		bool Add(CControlUI* pControl);
 		bool AddAt(CControlUI* pControl, int iIndex);
-		bool Remove(CControlUI* pControl);
-		bool RemoveAt(int iIndex);
+		bool Remove(CControlUI* pControl, bool bDoNotDestroy=false);
+		bool RemoveAt(int iIndex, bool bDoNotDestroy=false);
 		void RemoveAll();
 
 		void EnsureVisible(int iIndex);
@@ -231,7 +233,7 @@ namespace DuiLib {
 		virtual BOOL CheckColumEditable(int nColum) { return FALSE; };
 		virtual CEditUI* GetEditUI() { return NULL; };
 		virtual BOOL CheckColumComboBoxable(int nColum) { return FALSE; };
-		virtual CComboBoxUI* GetComboBoxUI() { return NULL; };
+		virtual CComboUI* GetComboBoxUI() { return NULL; };
 
 	protected:
 		int GetMinSelItemIndex();
@@ -404,14 +406,15 @@ namespace DuiLib {
 
 		void DrawItemBk(HDC hDC, const RECT& rcItem);
 
-		virtual bool GetAutoCalcWidth() const;
+		virtual bool IsAutoCalcWidth() const;
 		virtual void SetAutoCalcWidth(bool bAutoCalcWidth);
+		virtual bool IsAutoCalcHeight() const;
+		virtual void SetAutoCalcHeight(bool bAutoCalcHeight);
 	protected:
 		int m_iIndex;
 		bool m_bSelected;
 		UINT m_uButtonState;
 		IListOwnerUI* m_pOwner;
-		bool	m_bAutoCalcWidth;
 	};
 
 
@@ -511,14 +514,16 @@ namespace DuiLib {
 
 		void SetPos(RECT rc, bool bNeedInvalidate = true);
 
-		virtual bool GetAutoCalcWidth() const;
+		virtual bool IsAutoCalcWidth() const;
 		virtual void SetAutoCalcWidth(bool bAutoCalcWidth);
+		virtual bool IsAutoCalcHeight() const;
+		virtual void SetAutoCalcHeight(bool bAutoCalcHeight);
+
 	protected:
 		int m_iIndex;
 		bool m_bSelected;
 		UINT m_uButtonState;
 		IListOwnerUI* m_pOwner;
-		bool	m_bAutoCalcWidth;
 	};
 
 } // namespace DuiLib

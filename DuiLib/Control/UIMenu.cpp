@@ -95,7 +95,7 @@ namespace DuiLib {
 		return __super::SetItemIndex(pControl, iIndex);
 	}
 
-	bool CMenuUI::Remove(CControlUI* pControl)
+	bool CMenuUI::Remove(CControlUI* pControl, bool bDoNotDestroy )
 	{
 		CMenuElementUI* pMenuItem = static_cast<CMenuElementUI*>(pControl->GetInterface(_T("MenuElement")));
 		if (pMenuItem == NULL)
@@ -505,18 +505,18 @@ namespace DuiLib {
 
 		//////////////////////////////////////////////////////////////////////////add by liqs99
 		//调整在屏幕中的位置，主要是触碰边界
-		int screenX = GetSystemMetrics(SM_CXSCREEN);//获取整个屏幕右下角X坐标   
-		int screenY = GetSystemMetrics(SM_CYSCREEN);//屏幕Y坐标 
-// 		if(rc.right > screenX)
-// 		{
-// 			rc.left -= rc.right - screenX;
-// 			rc.right -= rc.right - screenX;
-// 		}
-// 		if(rc.bottom > screenY)
-// 		{
-// 			rc.top = point.y - rc.GetHeight();
-// 			rc.bottom = point.y;
-// 		}
+		//int screenX = GetSystemMetrics(SM_CXSCREEN);//获取整个屏幕右下角X坐标   
+		//int screenY = GetSystemMetrics(SM_CYSCREEN);//屏幕Y坐标 
+		if(rc.right > rcWork.GetWidth())
+		{
+			rc.left -= rc.right - rcWork.GetWidth();
+			rc.right -= rc.right - rcWork.GetWidth();
+		}
+		if(rc.bottom > rcWork.GetHeight())
+		{
+			rc.top = point.y - rc.GetHeight();
+			rc.bottom = point.y;
+		}
 		//////////////////////////////////////////////////////////////////////////
 
 		SetForegroundWindow(m_hWnd);
@@ -1211,7 +1211,7 @@ namespace DuiLib {
 							_tcscpy(pMenuCmd->szUserData, GetUserData().GetData());
 							_tcscpy(pMenuCmd->szText, GetText().GetData());
 							pMenuCmd->bChecked = GetChecked();
-							if (!PostMessage(CMenuWnd::GetGlobalContextMenuObserver().GetManager()->GetPaintWindow(), WM_MENUCLICK, (WPARAM)pMenuCmd, (LPARAM)this))
+							if (!PostMessage(CMenuWnd::GetGlobalContextMenuObserver().GetManager()->GetPaintWindow(), UIMSG_MENUCLICK, (WPARAM)pMenuCmd, (LPARAM)this))
 							{
 								delete pMenuCmd;
 								pMenuCmd = NULL;
@@ -1494,7 +1494,7 @@ namespace DuiLib {
 		//	return;
 
 		CMenuCmdUI cmdUI(this);
-		LRESULT lRet = ::SendMessage(CMenuWnd::GetGlobalContextMenuObserver().GetManager()->GetPaintWindow(), WM_MENU_UPDATE_COMMAND_UI, (WPARAM)&cmdUI, (LPARAM)this);		
+		LRESULT lRet = ::SendMessage(CMenuWnd::GetGlobalContextMenuObserver().GetManager()->GetPaintWindow(), UIMSG_MENU_UPDATE_COMMAND_UI, (WPARAM)&cmdUI, (LPARAM)this);		
 	}
 
 	void CMenuElementUI::DrawDisableItemIcon(HDC hDC, LPCTSTR pStrImage, LPCTSTR pStrModify)
@@ -1518,22 +1518,22 @@ namespace DuiLib {
 				if( rcDest.bottom > rcItem.bottom ) rcDest.bottom = rcItem.bottom;
 		}
 		bool bRet = _DrawImageMenuDisableIcon(hDC, pManager, rcItem, rcPaint, pDrawInfo->sImageName, pDrawInfo->sResType, rcDest, \
-			pDrawInfo->rcSource, pDrawInfo->rcCorner, pDrawInfo->dwMask, pDrawInfo->uFade, pDrawInfo->bHole, pDrawInfo->bTiledX, pDrawInfo->bTiledY, pDrawInfo->width, pDrawInfo->height, m_instance);
+			pDrawInfo->rcSource, pDrawInfo->rcCorner, pDrawInfo->dwMask, pDrawInfo->uFade, pDrawInfo->bHole, pDrawInfo->bTiledX, pDrawInfo->bTiledY, pDrawInfo->width, pDrawInfo->height, pDrawInfo->fillcolor, m_instance);
 
 	}
 	bool CMenuElementUI::_DrawImageMenuDisableIcon(HDC hDC, CPaintManagerUI* pManager, const RECT& rc, const RECT& rcPaint, const CDuiString& sImageName, \
 		const CDuiString& sImageResType, RECT rcItem, RECT rcBmpPart, RECT rcCorner, DWORD dwMask, BYTE bFade, \
-		bool bHole, bool bTiledX, bool bTiledY, int width, int height, HINSTANCE instance)
+		bool bHole, bool bTiledX, bool bTiledY, int width, int height, DWORD fillcolor, HINSTANCE instance)
 	{
 		if (sImageName.IsEmpty()) {
 			return false;
 		}
 		const TImageInfo* data = NULL;
 		if( sImageResType.IsEmpty() ) {
-			data = pManager->GetImageEx((LPCTSTR)sImageName, NULL, dwMask, width, height, false, instance);
+			data = pManager->GetImageEx((LPCTSTR)sImageName, NULL, dwMask, width, height, fillcolor, false, instance);
 		}
 		else {
-			data = pManager->GetImageEx((LPCTSTR)sImageName, (LPCTSTR)sImageResType, dwMask, width, height, false, instance);
+			data = pManager->GetImageEx((LPCTSTR)sImageName, (LPCTSTR)sImageResType, dwMask, width, height, fillcolor, false, instance);
 		}
 		if( !data ) return false;    
 

@@ -25,21 +25,23 @@ public:
 	xml_document m_nodeImage;
 	xml_node	 m_nodedata;
 
-	CxImage m_image;	//载入的图片
+	CString m_strSelectedFile;
+	CStdPtrArray m_imageFrames;
 	CRect m_rcImage;	//图片的大小
 
-	CRect m_rcControl;		//背景的大小，也就是所属控件的大小
-	CxImage m_imgControlX;	//背景图
+	CRect m_rcControl;			//背景的大小，也就是所属控件的大小
+	HBITMAP m_imgControlX;		//背景图
 public:
 	CUIManager *GetUIManager() const { return m_pUIManager; }
 	void SetUIManager(CUIManager *pManager) { m_pUIManager = pManager; }
 
 	void SetAttributeValue(LPCTSTR szAttribute);
 	CString GetAttributeValue();
-	void SetControlImage(CxImage &img);
+	void SetControlImage(HBITMAP img, RECT rcSource);
 	void SetImageFile(LPCTSTR lpstrPathName);
 
-	static BOOL svg_2_cximage(CxImage &cximg, LPCTSTR strPathName);
+	void LoadImageFile(LPCTSTR lpstrPathName);
+	void ClearImage();
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 

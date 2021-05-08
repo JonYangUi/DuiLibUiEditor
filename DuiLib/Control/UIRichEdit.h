@@ -28,6 +28,8 @@ namespace DuiLib {
 		void SetWantCtrlReturn(bool bWantCtrlReturn = true);
 		bool IsTransparent();
 		void SetTransparent(bool bTransparent = true);
+		bool IsParagraphIndent();
+		void SetParagraphIndent(bool bIndent = true);
 		bool IsRich();
 		void SetRich(bool bRich = true);
 		bool IsReadOnly();
@@ -113,6 +115,7 @@ namespace DuiLib {
 		void SetFocusedImage(LPCTSTR pStrImage);
 		LPCTSTR GetDisabledImage();
 		void SetDisabledImage(LPCTSTR pStrImage);
+		void PaintBkColor(HDC hDC);
 		void PaintStatusImage(HDC hDC);
 
 		void SetTipValue(LPCTSTR pStrTipValue);
@@ -145,11 +148,6 @@ namespace DuiLib {
 		void HomeLeft();
 		void EndRight();
 
-		bool GetAutoCalcWidth() const;
-		void SetAutoCalcWidth(bool bAutoCalcWidth);
-		bool GetAutoCalcHeight() const;
-		void SetAutoCalcHeight(bool bAutoCalcHeight);
-
 		virtual int GetFixedWidth() const;
 		virtual int GetFixedHeight() const;
 		SIZE EstimateSize(SIZE szAvailable);
@@ -176,6 +174,7 @@ namespace DuiLib {
 		bool m_bRich;
 		bool m_bReadOnly;
 		bool m_bWordWrap;
+		bool m_bParagraphIndent;
 		DWORD m_dwTextColor;
 		int m_iFont;
 		int m_iLimitText;
@@ -198,8 +197,6 @@ namespace DuiLib {
 		CDuiString m_sTipValue;
 		DWORD m_dwTipValueColor;
 		UINT m_uTipValueAlign;
-		bool	m_bAutoCalcWidth;
-		bool	m_bAutoCalcHeight;
 		bool	m_bReturnFixedWidth;
 		bool	m_bReturnFixedHeight;
 	};

@@ -66,6 +66,8 @@
 #include "Core/UIManager.h"
 #include "Core/UIBase.h"
 #include "Core/ControlFactory.h"
+
+#include "Control/UIAnimation.h"
 #include "Core/UIControl.h"
 #include "Core/UIContainer.h"
 
@@ -89,11 +91,8 @@
 #include "Control/UIText.h"
 #include "Control/UIEdit.h"
 #include "Control/UIGifAnim.h"
-#include "Control/UIGifAnimEx.h"
 
-#include "Control/UIAnimation.h"
 #include "Layout/UIAnimationTabLayout.h"
-#include "Control/UIAnimationPane.h"
 #include "Control/UIButton.h"
 #include "Layout/UIButtonLayout.h"
 #include "Control/UIOption.h"
@@ -103,7 +102,6 @@
 #include "Control/UIProgress.h"
 #include "Control/UISlider.h"
 
-#include "Control/UIComboBox.h"
 #include "Control/UIRichEdit.h"
 #include "Control/UIDateTime.h"
 #include "Control/UIIPAddress.h"
@@ -123,21 +121,25 @@
 #include "Control/UIRing.h"
 
 #define UIARGB(a,r,g,b)  ((COLORREF)((((BYTE)(b)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(r))<<16))  |(((DWORD)(BYTE)(a))<<24))  )
-#define UIARGB_GetRValue(rgb)      (LOBYTE((rgb)>>16))
-#define UIARGB_GetGValue(rgb)      (LOBYTE(((WORD)(rgb)) >> 8))
-#define UIARGB_GetBValue(rgb)      (LOBYTE(rgb))
+#define UIARGB_GetRValue(argb)      (LOBYTE((argb)>>16))
+#define UIARGB_GetGValue(argb)      (LOBYTE(((WORD)(argb)) >> 8))
+#define UIARGB_GetBValue(argb)      (LOBYTE(argb))
 
 #define UIRGB(r,g,b)	((COLORREF)((((BYTE)(b)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(r))<<16))  |(((DWORD)(BYTE)(255))<<24))  )
 #define UIARGB_2_RGB(argb)	(RGB(UIARGB_GetRValue(argb), UIARGB_GetGValue(argb), UIARGB_GetBValue(argb)))
+#define RGB_2_UIRGB(rgb)	(UIRGB(GetRValue(rgb), GetGValue(rgb), GetBValue(rgb)))
 
 #include "Control/UIIconButton.h"
 #include "Control/UIDateTimeEx.h"
-#include "Control/UIAccordionPane.h"
 #include "Control/UIComboEx.h"
 #include "Control/UIImageBoxEx.h"
 #include "Control/UIRollTextEx.h"
 #include "Control/UIMsgWnd.h"
-//#include "Control/UIGridList.h"
+#include "Control/UIPicture.h"
+#include "Control/UIPictureBox.h"
+
+#include "Control/UITreeCtrl.h"
+#include "Control/UITreeItem.h"
 
 #include "Layout/UIChildWindow.h"
 

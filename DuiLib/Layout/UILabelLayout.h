@@ -5,7 +5,7 @@
 
 namespace DuiLib
 {
-	class UILIB_API CLabelLayoutUI : public CContainerUI
+	class UILIB_API CLabelLayoutUI : public CHorizontalLayoutUI
 	{
 		DECLARE_DUICONTROL(CLabelLayoutUI)
 	public:
@@ -35,8 +35,6 @@ namespace DuiLib
 
 		void PaintText(HDC hDC);
 
-		virtual bool GetAutoCalcWidth() const;
-		virtual void SetAutoCalcWidth(bool bAutoCalcWidth);
 		virtual void SetText(LPCTSTR pstrText);
 		virtual void SetText(int n);		//add by liqs99
 		
@@ -47,7 +45,6 @@ namespace DuiLib
 		UINT	m_uTextStyle;
 		RECT	m_rcTextPadding;
 		bool	m_bShowHtml;
-		bool	m_bAutoCalcWidth;
 	};
 }
 

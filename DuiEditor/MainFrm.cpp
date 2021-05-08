@@ -281,6 +281,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CThreadPipe::CreatePipe();
 
 	SetTimer(2, 200, NULL);
+
+// 	CString str, temp;
+// 	for (int i=1; i<=6*32; i++)
+// 	{
+// 		temp.Format(_T("#define ID_FONT_LIST%d                   %d\r\n"), i, i + 32980);
+// 		str += temp;
+// 	}
+// 	InsertMsg(str);
+
 	return 0;
 }
 
@@ -307,11 +316,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 // CMainFrame 消息处理程序
 void CMainFrame::OnApplicationLook(UINT id)
 {
-#ifdef DUILIB_VERSION_ORIGINAL
-	DuiLib::CWaitCursor wait;
-#else
 	CWaitCursor wait;
-#endif
 
 	theApp.m_nAppLook = id;
 

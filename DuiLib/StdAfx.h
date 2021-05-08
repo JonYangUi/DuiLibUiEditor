@@ -77,8 +77,6 @@
 #endif
 #define MOUSEEVENTF_FROMTOUCH 0xFF515700
 
-//#define USE_XIMAGE_EFFECT //使用ximage的gif控件CGifAnimExUI开关，提升性能,默认不使用
-
 #include "UIlib.h"
 
 #include <olectl.h>
@@ -87,7 +85,6 @@
 #define MAX max
 #define MIN min
 #define CLAMP(x,a,b) (MIN(b,MAX(a,x)))
-
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
