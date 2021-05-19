@@ -150,17 +150,17 @@ bool CNotifyPump::LoopDispatch(TNotifyUI& msg)
 	const DUI_MSGMAP* pMessageMap = NULL;
 
 #ifndef UILIB_STATIC
-	for(pMessageMap = GetMessageMap(); pMessageMap!=NULL; pMessageMap = (*pMessageMap->pfnGetBaseMap)())
+    for (pMessageMap = GetMessageMap(); pMessageMap != NULL; pMessageMap = (*pMessageMap->pfnGetBaseMap)())
 #else
-	for(pMessageMap = GetMessageMap(); pMessageMap!=NULL; pMessageMap = pMessageMap->pBaseMap)
+    for (pMessageMap = GetMessageMap(); pMessageMap != NULL; pMessageMap = pMessageMap->pBaseMap)
 #endif
 	{
 #ifndef UILIB_STATIC
-		ASSERT(pMessageMap != (*pMessageMap->pfnGetBaseMap)());
+        ASSERT(pMessageMap != (*pMessageMap->pfnGetBaseMap)());
 #else
 		ASSERT(pMessageMap != pMessageMap->pBaseMap);
 #endif
-		if ((lpEntry = DuiFindMessageEntry(pMessageMap->lpEntries,msg)) != NULL)
+        if ((lpEntry = DuiFindMessageEntry(pMessageMap->lpEntries, msg)) != NULL)
 		{
 			goto LDispatch;
 		}
@@ -176,17 +176,23 @@ LDispatch:
 	nSig = lpEntry->nSig;
 	switch (nSig)
 	{
-	default:
-		ASSERT(FALSE);
-		break;
-	case DuiSig_lwl:
-		(this->*mmf.pfn_Notify_lwl)(msg.wParam,msg.lParam);
-		bRet = true;
-		break;
-	case DuiSig_vn:
-		(this->*mmf.pfn_Notify_vn)(msg);
-		bRet = true;
-		break;
+	    case DuiSig_lwl:
+        {
+            (this->*mmf.pfn_Notify_lwl)(msg.wParam, msg.lParam);
+            bRet = true;
+        }
+        break;
+	    case DuiSig_vn:
+        {
+            (this->*mmf.pfn_Notify_vn)(msg);
+            bRet = true;
+        }
+	    break;
+        default:
+        {
+            ASSERT(FALSE);
+        }
+        break;
 	}
 	return bRet;
 }
@@ -194,17 +200,23 @@ LDispatch:
 void CNotifyPump::NotifyPump(TNotifyUI& msg)
 {
 	///遍历虚拟窗口
-	if( !msg.sVirtualWnd.IsEmpty() ){
-		for( int i = 0; i< m_VirtualWndMap.GetSize(); i++ ) {
-			if( LPCTSTR key = m_VirtualWndMap.GetAt(i) ) {
-				if( _tcsicmp(key, msg.sVirtualWnd.GetData()) == 0 ){
-					CNotifyPump* pObject = static_cast<CNotifyPump*>(m_VirtualWndMap.Find(key, false));
-					if( pObject && pObject->LoopDispatch(msg) )
-						return;
-				}
-			}
-		}
-	}
+    if (!msg.sVirtualWnd.IsEmpty()) 
+    {
+        for (int i = 0; i < m_VirtualWndMap.GetSize(); i++) 
+        {
+            if (LPCTSTR key = m_VirtualWndMap.GetAt(i)) 
+            {
+                if (_tcsicmp(key, msg.sVirtualWnd.GetData()) == 0)
+                {
+                    CNotifyPump* pObject = static_cast<CNotifyPump*>(m_VirtualWndMap.Find(key, false));
+                    if (pObject && pObject->LoopDispatch(msg))
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+    }
 
 	///
 	//遍历主窗口
@@ -213,7 +225,10 @@ void CNotifyPump::NotifyPump(TNotifyUI& msg)
 
 //////////////////////////////////////////////////////////////////////////
 ///
-CWindowWnd::CWindowWnd() : m_hWnd(NULL), m_OldWndProc(::DefWindowProc), m_bSubclassed(false)
+CWindowWnd::CWindowWnd() :
+    m_hWnd(NULL), 
+    m_OldWndProc(::DefWindowProc), 
+    m_bSubclassed(false)
 {
 }
 
@@ -253,7 +268,7 @@ HWND CWindowWnd::Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD 
     if( GetSuperClassName() == NULL && !RegisterWindowClass() ) return NULL;
     m_hWnd = ::CreateWindowEx(dwExStyle, GetWindowClassName(), pstrName, dwStyle, x, y, cx, cy, hwndParent, hMenu, CPaintManagerUI::GetInstance(), this);
 
-	ASSERT(m_hWnd!=NULL);
+    ASSERT(m_hWnd != NULL);
     return m_hWnd;
 }
 

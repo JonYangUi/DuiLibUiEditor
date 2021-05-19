@@ -5,7 +5,8 @@
 
 namespace DuiLib
 {
-	class UILIB_API CButtonLayoutUI : public CLabelLayoutUI
+	class UILIB_API CButtonLayoutUI : 
+		public CLabelLayoutUI
 	{
 		DECLARE_DUICONTROL(CButtonLayoutUI)
 

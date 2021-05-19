@@ -422,15 +422,14 @@ namespace DuiLib {
 	RECT CControlUI::GetRelativePos() const
 	{
 		CControlUI* pParent = GetParent();
-		if( pParent != NULL ) {
+		CDuiRect rcRelativePos = {0};
+		if (pParent != nullptr)
+		{
 			RECT rcParentPos = pParent->GetPos();
-			CDuiRect rcRelativePos(m_rcItem);
+			rcRelativePos = m_rcItem;
 			rcRelativePos.Offset(-rcParentPos.left, -rcParentPos.top);
-			return rcRelativePos;
 		}
-		else {
-			return CDuiRect(0, 0, 0, 0);
-		}
+		return rcRelativePos;
 	}
 
 	RECT CControlUI::GetClientPos() const 

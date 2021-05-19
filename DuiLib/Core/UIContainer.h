@@ -26,7 +26,9 @@ namespace DuiLib {
 	//
 	class CScrollBarUI;
 
-	class UILIB_API CContainerUI : public CControlUI, public IContainerUI
+	class UILIB_API CContainerUI : 
+		public CControlUI, 
+		public IContainerUI
 	{
 		DECLARE_DUICONTROL(CContainerUI)
 

@@ -49,7 +49,7 @@ namespace DuiLib {
 	class UILIB_API CNotifyPump
 	{
 	public:
-		bool AddVirtualWnd(CDuiString strName,CNotifyPump* pObject);
+		bool AddVirtualWnd(CDuiString strName, CNotifyPump* pObject);
 		bool RemoveVirtualWnd(CDuiString strName);
 		void NotifyPump(TNotifyUI& msg);
 		bool LoopDispatch(TNotifyUI& msg);

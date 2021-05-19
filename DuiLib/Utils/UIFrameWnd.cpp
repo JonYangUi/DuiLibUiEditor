@@ -14,7 +14,7 @@ CUIFrameWnd::~CUIFrameWnd(void)
 	
 }
 
-void CUIFrameWnd::OnFinalMessage( HWND hWnd )
+void CUIFrameWnd::OnFinalMessage(HWND hWnd)
 {
 	if(m_listForm.size() > 0)
 	{
@@ -27,6 +27,11 @@ void CUIFrameWnd::OnFinalMessage( HWND hWnd )
 	}
 
 	__super::OnFinalMessage(hWnd);	
+}
+
+CPaintManagerUI* CUIFrameWnd::GetManager()
+{
+	return &m_pm;
 }
 
 void CUIFrameWnd::AttachVirtualForm(CUIForm *pForm)
