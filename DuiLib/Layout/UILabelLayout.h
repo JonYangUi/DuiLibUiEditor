@@ -5,8 +5,7 @@
 
 namespace DuiLib
 {
-	class UILIB_API CLabelLayoutUI :
-		public CHorizontalLayoutUI
+	class UILIB_API CLabelLayoutUI : public CHorizontalLayoutUI
 	{
 		DECLARE_DUICONTROL(CLabelLayoutUI)
 	public:
@@ -37,7 +36,6 @@ namespace DuiLib
 		void PaintText(HDC hDC);
 
 		virtual void SetText(LPCTSTR pstrText);
-		virtual void SetText(int n);		//add by liqs99
 		
 	protected:
 		DWORD	m_dwTextColor;

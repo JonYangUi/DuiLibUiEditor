@@ -18,18 +18,16 @@ namespace DuiLib
 
 	LRESULT WindowImplBase::ResponseDefaultKeyEvent(WPARAM wParam)
 	{
-		bool bEsc = false;
-
 		if (wParam == VK_RETURN)
 		{
-			bEsc = false;
+			return FALSE;
 		}
 		else if (wParam == VK_ESCAPE)
 		{
-			bEsc = true;
+			return TRUE;
 		}
 
-		return bEsc;
+		return FALSE;
 	}
 
 	UINT WindowImplBase::GetClassStyle() const
@@ -78,10 +76,7 @@ namespace DuiLib
 #if defined(WIN32) && !defined(UNDER_CE)
 	LRESULT WindowImplBase::OnNcActivate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if (::IsIconic(*this))
-		{
-			bHandled = FALSE;
-		}
+		if( ::IsIconic(*this) ) bHandled = FALSE;
 		return (wParam == 0) ? TRUE : FALSE;
 	}
 

@@ -6,9 +6,7 @@ using namespace DuiLib;
 typedef MenuCmd MENUCOMMAND;
 
 class CUIForm;
-class UILIB_API CUIFrameWnd : 
-	public WindowImplBase, 
-	public CUIFrmBase
+class UILIB_API CUIFrameWnd : public WindowImplBase, public CUIFrmBase
 {
 public:
 	CUIFrameWnd(void);
@@ -16,9 +14,9 @@ public:
 
 	virtual LPCTSTR GetWindowClassName() const = 0;
 	virtual CDuiString GetSkinFile() = 0;
-	virtual void OnFinalMessage(HWND hWnd);
+	virtual void OnFinalMessage( HWND hWnd );
 
-	CPaintManagerUI* GetManager();
+	CPaintManagerUI *GetManager() { return &m_pm; }
 
 	void AttachVirtualForm(CUIForm *pForm);
 	void DetachVirtualForm(CUIForm *pForm);
