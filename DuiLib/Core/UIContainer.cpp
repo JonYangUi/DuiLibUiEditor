@@ -103,6 +103,13 @@ namespace DuiLib
 		return m_items.InsertAt(iIndex, pControl);
 	}
 
+	bool CContainerUI::AddAt(CControlUI* pControl,CControlUI* _IndexControl)
+	{
+		int nIndex = GetItemIndex(_IndexControl);
+		if(nIndex < 0) return false;
+		return AddAt(pControl, nIndex);
+	}
+
 	bool CContainerUI::Remove(CControlUI* pControl, bool bDoNotDestroy )
 	{
 		if( pControl == NULL) return false;
@@ -665,15 +672,22 @@ namespace DuiLib
 			SIZE sz = {0};
 			for (int it=0; it<GetCount(); it++)
 			{
-				SIZE szControl = {m_rcInset.left + m_rcInset.right, m_rcInset.top + m_rcInset.bottom};
+				SIZE szControl = {0};
 				CControlUI *pControl = GetItemAt(it);
 				if(!pControl->IsVisible()) continue;
 				szControl = pControl->EstimateSize(szAvailable);
+				RECT padding = pControl->GetPadding();
 				if(IsAutoCalcWidth())
+				{
 					sz.cx += szControl.cx;
+					sz.cx += padding.left + padding.right;
+				}
 
 				if(IsAutoCalcHeight())
+				{	
 					sz.cy += szControl.cy;
+					sz.cy += padding.top + padding.bottom;
+				}
 			}
 
 			if(IsAutoCalcWidth())
@@ -992,6 +1006,7 @@ namespace DuiLib
 		int nParentHeight = m_rcItem.bottom - m_rcItem.top;
 
 		UINT uAlign = pControl->GetFloatAlign();
+		TPercentInfo rcPercent = pControl->GetFloatPercent();
 		if(uAlign != 0) {
 			RECT rcCtrl = {0, 0, sz.cx, sz.cy};
 			if((uAlign & DT_CENTER) != 0) {
@@ -1017,8 +1032,8 @@ namespace DuiLib
 			::OffsetRect(&rcCtrl, m_rcItem.left, m_rcItem.top);
 			pControl->SetPos(rcCtrl, false);
 		}
-		else {
-			TPercentInfo rcPercent = pControl->GetFloatPercent();
+		else if(rcPercent.left !=0 || rcPercent.top != 0 || rcPercent.right != 0 || rcPercent.bottom != 0)
+		{
 			LONG width = m_rcItem.right - m_rcItem.left;
 			LONG height = m_rcItem.bottom - m_rcItem.top;
 			RECT rcCtrl = { 0 };
@@ -1026,6 +1041,41 @@ namespace DuiLib
 			rcCtrl.top = (LONG)(height*rcPercent.top) + szXY.cy+ m_rcItem.top;
 			rcCtrl.right = (LONG)(width*rcPercent.right) + szXY.cx + sz.cx+ m_rcItem.left;
 			rcCtrl.bottom = (LONG)(height*rcPercent.bottom) + szXY.cy + sz.cy+ m_rcItem.top;
+			pControl->SetPos(rcCtrl, false);
+		}
+		else 
+		{
+			RECT rcCtrl = { 0 };
+			rcCtrl.left		= szXY.cx + m_rcItem.left;
+			rcCtrl.top		= szXY.cy + m_rcItem.top;
+			rcCtrl.right	= szXY.cx + sz.cx+ m_rcItem.left;
+			rcCtrl.bottom	= szXY.cy + sz.cy+ m_rcItem.top;
+
+			//根据百分比调整位置
+			LONG width = m_rcItem.right - m_rcItem.left;
+			LONG height = m_rcItem.bottom - m_rcItem.top;
+			POINT ptPosition = pControl->GetFloatPosition();
+			if(ptPosition.x != 0 && szXY.cx == 0)
+			{
+				rcCtrl.left  = width*ptPosition.x/100 + m_rcItem.left;
+				rcCtrl.right = rcCtrl.left + sz.cx;
+			}
+			if(ptPosition.y != 0 && szXY.cy == 0)
+			{
+				rcCtrl.top  = height*ptPosition.y/100 + m_rcItem.top;
+				rcCtrl.bottom = rcCtrl.top + sz.cy;
+			}
+
+			//根据百分比调整大小
+			SIZE szFloat = { pControl->GetFixedWidthPercent(), pControl->GetFixedHeightPercent() };
+			if(szFloat.cx != 0 && sz.cx == 0)
+			{
+				rcCtrl.right = width*szFloat.cx/100 + rcCtrl.left;
+			}
+			if(szFloat.cy != 0 && sz.cy == 0)
+			{
+				rcCtrl.bottom = height*szFloat.cy/100 + rcCtrl.top;
+			}
 			pControl->SetPos(rcCtrl, false);
 		}
 	}

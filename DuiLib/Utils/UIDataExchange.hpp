@@ -7,6 +7,7 @@ namespace DuiLib
 {
 
 #define UI_BINDCONTROL(classname, pControl, controlname)  { pControl = static_cast<classname *>(FindControl(controlname)); ASSERT(pControl); }
+#define UI_BINDSUBCONTROL(classname, pControl, controlname)  { pControl = static_cast<classname *>(FindSubControl(controlname)); ASSERT(pControl); }
 #define UI_COMMAND(controlname, fun) if(IsControl(msg, controlname)) { fun(); return; }
 
 class CUIDataExchange
@@ -38,6 +39,7 @@ public:
 
 		//combo控件
 		_control_combo,	
+		_control_combo_ex,	
 
 		//tablayout, cursel
 		_control_tablayout,
@@ -78,6 +80,8 @@ public:
 
 	bool ddxCombo(CControlUI *pControl, int &va); //cursel
 	bool ddxCombo(LPCTSTR pControlName, int &va); //cursel
+	bool ddxComboItemData(CControlUI *pControl, int &va); //绑定ComboItemData，使用场景: combo子项的id号
+	bool ddxComboItemData(LPCTSTR pControlName, int &va); //绑定ComboItemData，使用场景: combo子项的id号
 
 	bool ddxTabLayout(CControlUI *pControl, int &va); //cursel
 	bool ddxTabLayout(LPCTSTR pControlName, int &va); //cursel
@@ -86,6 +90,7 @@ protected:
 	bool _UpdateText(_ddx_data *pData, bool bSaveAndValidate);
 	bool _UpdateCheckBox(_ddx_data *pData, bool bSaveAndValidate);
 	bool _UpdateCombo(_ddx_data *pData, bool bSaveAndValidate);
+	bool _UpdateComboEx(_ddx_data *pData, bool bSaveAndValidate);
 	bool _UpdateTabLayout(_ddx_data *pData, bool bSaveAndValidate);
 private:
 	CPaintManagerUI *m_pManager;

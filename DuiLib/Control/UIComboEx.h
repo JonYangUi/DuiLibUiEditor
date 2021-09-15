@@ -20,7 +20,7 @@ public:
 	virtual bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
 	bool DrawDropButtonImage(HDC hDC, LPCTSTR pStrImage, LPCTSTR pStrModify=NULL);
 
-	CControlUI *AddString(LPCTSTR pstrText, UINT_PTR ptrItemData=0);
+	CControlUI *AddString(LPCTSTR pstrText, UINT_PTR pItemData=0);
 	int DeleteString(LPCTSTR pstrText); //返回删除项的下标
 
 
@@ -29,6 +29,8 @@ public:
 	bool SetCurSelFromItemData(UINT_PTR ptrItemData);
 	bool SetItemData(CControlUI *pControl, UINT_PTR ptrItemData);
 	UINT_PTR GetCurSelItemData();
+
+	virtual void SetText(LPCTSTR pstrText);
 
 	virtual void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 

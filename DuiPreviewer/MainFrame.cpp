@@ -29,7 +29,7 @@ LRESULT CMainFrame::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:		
 		DuiWriteConsole(_T("WM_CREATE"));
-		//LoadConfigXml();
+		LoadConfigXml();
 		break;
 	case WM_CLOSE:		
 		DuiWriteConsole(_T("WM_CLOSE"));
@@ -86,6 +86,19 @@ LRESULT CMainFrame::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return __super::HandleMessage(uMsg, wParam, lParam);
+}
+
+void CMainFrame::Notify(TNotifyUI& msg)
+{
+	CString className = msg.pSender->GetClass();
+	CString ControlName = msg.pSender->GetName();
+	CString EventName = msg.sType;
+
+	CString strText;
+	strText.Format(_T("Notify: class='%s' name='%s' msg='%s'"), className, ControlName, EventName);
+	DuiWriteConsole(strText);
+
+	__super::Notify(msg);
 }
 
 void CMainFrame::LoadConfigXml()

@@ -52,7 +52,9 @@
 #include "Utils/Utils.h"
 #include "Utils/unzip.h"
 #include "Utils/VersionHelpers.h"
-#include "Core/UIMarkup.h"
+#include "Core/UIXmlAttribute.h"
+#include "Core/UIXmlNode.h"
+#include "Core/UIXmlDocument.h"
 #include "Utils/observer_impl_base.h"
 #include "Utils/UIShadow.h"
 #include "Utils/UIDelegate.h"
@@ -78,6 +80,7 @@
 #include "Layout/UIVerticalLayout.h"
 #include "Layout/UIHorizontalLayout.h"
 #include "Layout/UITileLayout.h"
+#include "Layout/UIDynamicLayout.h"
 #include "Layout/UITabLayout.h"
 #include "Layout/UIChildLayout.h"
 
@@ -143,6 +146,8 @@
 #include "Control/ITreeUI.h"
 #include "Control/UITree.h"
 #include "Control/UITreeItem.h"
+
+#include "Layout/UITableLayout.h"
 
 #include "Layout/UIChildWindow.h"
 
